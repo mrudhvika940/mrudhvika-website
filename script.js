@@ -184,7 +184,7 @@ const SECTION_KEYWORDS = {
     }
   },
   experience: {
-    keywords: ['experience', 'work', 'job', 'career', 'achievement', 'professional'],
+    keywords: ['experience', 'work', 'job', 'career', 'achievement', 'professional', 'role', 'position', 'working', 'achievements', 'current role', 'current position', 'what do you do'],
     content: {
       title: "Professional Experience",
       points: [
@@ -282,17 +282,6 @@ const CHAT_SUGGESTIONS = {
   ]
 };
 
-// Function to show relevant follow-up suggestions
-function showFollowUpSuggestions(category) {
-  const suggestions = CHAT_SUGGESTIONS[category] || CHAT_SUGGESTIONS.default;
-  const suggestionsHTML = suggestions.map(suggestion => 
-    `<button onclick="handleSuggestion('${suggestion.text}')">${suggestion.icon} ${suggestion.text}</button>`
-  ).join('');
-  
-  const suggestionsDiv = document.querySelector('.suggestion-chips');
-  suggestionsDiv.innerHTML = suggestionsHTML;
-}
-
 // Updated suggestion handler
 function handleSuggestion(query) {
   const input = document.getElementById('chat-input');
@@ -302,12 +291,34 @@ function handleSuggestion(query) {
   
   setTimeout(() => {
     const botResponse = generateResponse(query);
-    appendMessage(botResponse);
+    appendMessage(botResponse, false);
     
     // Show follow-up suggestions based on the query
     const category = determineCategory(query.toLowerCase());
-    showFollowUpSuggestions(category);
+    
+    // Special handling for experience-related queries
+    if (category === 'experience') {
+      showFollowUpSuggestions('experience');
+    } else {
+      showFollowUpSuggestions(category);
+    }
   }, 500);
+}
+
+// Function to show relevant follow-up suggestions
+function showFollowUpSuggestions(category) {
+  const suggestions = CHAT_SUGGESTIONS[category] || CHAT_SUGGESTIONS.default;
+  const suggestionsHTML = suggestions.map(suggestion => 
+    `<button onclick="handleSuggestion('${suggestion.text}')" class="suggestion-chip">
+      <i class="fas ${suggestion.icon.startsWith('fa-') ? suggestion.icon : `fa-${suggestion.icon}`}"></i>
+      ${suggestion.text}
+    </button>`
+  ).join('');
+  
+  const suggestionsDiv = document.querySelector('.suggestion-chips');
+  if (suggestionsDiv) {
+    suggestionsDiv.innerHTML = suggestionsHTML;
+  }
 }
 
 // Helper function to determine query category
@@ -346,29 +357,56 @@ function handleUserInput(event) {
 document.addEventListener('DOMContentLoaded', () => {
   const chatWidgetHTML = `
     <div id="chat-widget" class="chat-widget">
-      <div class="chat-header">
-        <span>Chat with Mrudhvika</span>
-        <button id="chat-toggle" onclick="toggleChat()">💬</button>
+      <div class="chat-header" onclick="toggleChat()">
+        <div class="chat-header-content">
+          <div class="chat-avatar">M</div>
+          <div class="chat-title">
+            <span class="chat-name">Chat with Mrudhvika</span>
+            <span class="chat-status">Online</span>
+          </div>
+        </div>
+        <button id="chat-toggle" aria-label="Toggle chat">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div id="chat-messages" class="chat-messages"></div>
-      <div class="suggestion-chips">
-        <button onclick="handleSuggestion('Tell me about your skills')">💡 Skills</button>
-        <button onclick="handleSuggestion('What is your work experience?')">💼 Experience</button>
-        <button onclick="handleSuggestion('What languages do you know?')">🗣️ Languages</button>
-        <button onclick="handleSuggestion('What are your interests?')">💝 Interests</button>
-        <button onclick="handleSuggestion('Tell me about your education')">🎓 Education</button>
+      <div id="chat-body">
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="suggestion-chips">
+          <button onclick="handleSuggestion('Tell me about your skills')" class="suggestion-chip">
+            <i class="fas fa-tools"></i> Skills
+          </button>
+          <button onclick="handleSuggestion('What is your work experience?')" class="suggestion-chip">
+            <i class="fas fa-briefcase"></i> Experience
+          </button>
+          <button onclick="handleSuggestion('What languages do you know?')" class="suggestion-chip">
+            <i class="fas fa-language"></i> Languages
+          </button>
+          <button onclick="handleSuggestion('What are your interests?')" class="suggestion-chip">
+            <i class="fas fa-heart"></i> Interests
+          </button>
+          <button onclick="handleSuggestion('Tell me about your education')" class="suggestion-chip">
+            <i class="fas fa-graduation-cap"></i> Education
+          </button>
+        </div>
+        <div class="chat-input-container">
+          <input type="text" id="chat-input" class="chat-input" 
+                 placeholder="Type your message..." 
+                 onkeypress="handleUserInput(event)">
+          <button onclick="sendMessage()" class="chat-send-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
       </div>
-      <input type="text" id="chat-input" class="chat-input" 
-             placeholder="Ask me anything..." 
-             onkeypress="handleUserInput(event)">
     </div>
   `;
   
   document.body.insertAdjacentHTML('beforeend', chatWidgetHTML);
   
+  // Initialize chat state
   setTimeout(() => {
-    appendMessage("👋 Hi! I'm Mrudhvika's chatbot. I can help you learn about my:");
-    appendMessage("• 💼 Professional Experience\n• 💡 Skills & Expertise\n• 🎓 Education\n• 🗣️ Languages\n• 💝 Interests & Hobbies\n\nClick a suggestion or ask me anything!");
+    appendMessage("👋 Hi! I'm Mrudhvika's chatbot assistant. I can help you learn about:", false);
+    appendMessage("• 💼 Professional Experience\n• 💡 Skills & Expertise\n• 🎓 Education\n• 🗣️ Languages\n• 💝 Interests & Hobbies", false);
+    appendMessage("Click a suggestion or type your question!", false);
   }, 1000);
 });
 
@@ -377,15 +415,19 @@ function generateResponse(query) {
   const relevantContent = findRelevantContent(query);
   
   if (relevantContent.length === 0) {
-    return "I apologize, but I couldn't find that information in the website content. I can help you with information about my experience, skills, education, or contact details. What would you like to know?";
+    return "I apologize, but I couldn't find that information. You can ask me about my experience, skills, education, languages, or interests.";
   }
 
-  let response = "Based on the website content:\n\n";
+  let response = "";
   relevantContent.forEach(content => {
-    response += `${content.section}: ${content.content}\n\n`;
+    response += `${content.section}:\n`;
+    content.content.forEach(point => {
+      response += `${point}\n`;
+    });
+    response += "\n";
   });
 
-  return response;
+  return response.trim();
 }
 
 // Chat UI functionality
@@ -393,12 +435,37 @@ let chatOpen = false;
 
 function toggleChat() {
   const chatWidget = document.getElementById('chat-widget');
-  const suggestions = document.querySelector('.suggestion-chips');
+  const chatBody = document.getElementById('chat-body');
+  const chatToggle = document.getElementById('chat-toggle');
+  
   chatOpen = !chatOpen;
-  chatWidget.style.height = chatOpen ? '400px' : '60px';
-  document.getElementById('chat-toggle').innerHTML = chatOpen ? '✕' : '💬';
-  if (suggestions) {
-    suggestions.style.display = chatOpen ? 'flex' : 'none';
+  
+  if (chatOpen) {
+    chatWidget.classList.add('open');
+    chatToggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+    chatBody.style.display = 'flex';
+  } else {
+    chatWidget.classList.remove('open');
+    chatToggle.innerHTML = '<i class="fas fa-chevron-up"></i>';
+    chatBody.style.display = 'none';
+  }
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  
+  if (message) {
+    appendMessage(message, true);
+    input.value = '';
+    
+    setTimeout(() => {
+      const botResponse = generateResponse(message);
+      appendMessage(botResponse, false);
+      
+      const category = determineCategory(message.toLowerCase());
+      showFollowUpSuggestions(category);
+    }, 500);
   }
 }
 
@@ -406,7 +473,16 @@ function appendMessage(message, isUser = false) {
   const chatMessages = document.getElementById('chat-messages');
   const messageDiv = document.createElement('div');
   messageDiv.className = `chat-message ${isUser ? 'user-message' : 'bot-message'}`;
-  messageDiv.textContent = message;
+  
+  // Format message content
+  const formattedMessage = message.split('\n').map(line => {
+    if (line.startsWith('•')) {
+      return `<div class="list-item">${line}</div>`;
+    }
+    return line;
+  }).join('<br>');
+  
+  messageDiv.innerHTML = formattedMessage;
   chatMessages.appendChild(messageDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -418,27 +494,29 @@ function findRelevantContent(query) {
   
   // Check each section for keyword matches
   for (const [section, data] of Object.entries(SECTION_KEYWORDS)) {
+    // Check if any keyword is included in the query
     if (data.keywords.some(keyword => query.includes(keyword))) {
       matches.push({
         section: data.content.title,
         content: data.content.points
       });
+      continue; // Move to next section once we find a match
     }
-  }
-  
-  // If no direct matches, try fuzzy matching
-  if (matches.length === 0) {
-    for (const [section, data] of Object.entries(SECTION_KEYWORDS)) {
-      const words = query.split(' ');
-      if (words.some(word => 
-        word.length > 3 && // Only check words longer than 3 characters
-        data.keywords.some(keyword => keyword.includes(word))
-      )) {
-        matches.push({
-          section: data.content.title,
-          content: data.content.points
-        });
-      }
+    
+    // If no direct match, check if query words match parts of keywords
+    const queryWords = query.split(' ');
+    const hasPartialMatch = queryWords.some(word => 
+      word.length > 3 && // Only check words longer than 3 characters
+      data.keywords.some(keyword => 
+        keyword.includes(word) || word.includes(keyword)
+      )
+    );
+    
+    if (hasPartialMatch) {
+      matches.push({
+        section: data.content.title,
+        content: data.content.points
+      });
     }
   }
   
