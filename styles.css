@@ -223,12 +223,12 @@ main {
 /* Skills Grid */
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
 }
 
 .skill-category {
-  background: var(--background);
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 15px;
   transition: var(--transition);
@@ -237,6 +237,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  border: 1px solid rgba(52, 152, 219, 0.1);
 }
 
 .skill-category::before {
@@ -248,19 +249,73 @@ main {
   height: 100%;
   background-size: cover;
   background-position: center;
-  opacity: 0.05;
+  opacity: 0.04;
   transition: var(--transition);
   z-index: 0;
 }
 
-.skill-category:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: var(--shadow-hover);
+.skill-category:hover::before {
+  opacity: 0.08;
+  transform: scale(1.05);
 }
 
-.skill-category:hover::before {
-  opacity: 0.1;
-  transform: scale(1.1);
+.skill-category h3 {
+  color: var(--primary);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.skill-category .skill-emoji {
+  font-size: 1.8em;
+  background: rgba(52, 152, 219, 0.1);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.skill-category p {
+  color: var(--text-light);
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 1rem;
+}
+
+.skill-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.skill-item {
+  background: rgba(52, 152, 219, 0.08);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--primary);
+  transition: var(--transition);
+}
+
+.skill-item:hover {
+  background: rgba(52, 152, 219, 0.15);
+  transform: translateY(-2px);
+}
+
+.skill-category:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(52, 152, 219, 0.2);
 }
 
 /* Education Grid */
@@ -396,7 +451,22 @@ main {
   }
   
   .skills-grid {
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+  
+  .skill-category {
+    padding: 1.5rem;
+  }
+  
+  .skill-category h3 {
+    font-size: 1.2rem;
+  }
+  
+  .skill-category .skill-emoji {
+    width: 35px;
+    height: 35px;
+    font-size: 1.5em;
   }
   
   .contact-grid {
@@ -416,6 +486,15 @@ main {
   nav ul li a {
     width: 100%;
     justify-content: center;
+  }
+  
+  .skill-items {
+    gap: 0.4rem;
+  }
+  
+  .skill-item {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -594,5 +673,280 @@ main {
   
   .achievements li {
     font-size: 0.9rem;
+  }
+}
+
+/* Chat Widget Styles */
+.chat-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  height: 60px;
+  background: var(--card-bg);
+  border-radius: 15px;
+  box-shadow: var(--shadow-hover);
+  overflow: hidden;
+  transition: height 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  background: var(--gradient);
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+#chat-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+#chat-toggle:hover {
+  transform: scale(1.1);
+}
+
+.chat-messages {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-message {
+  max-width: 80%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  line-height: 1.4;
+  font-size: 0.9rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.bot-message {
+  background: var(--background);
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
+}
+
+.user-message {
+  background: var(--secondary);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 5px;
+}
+
+.chat-input {
+  padding: 15px;
+  border: none;
+  border-top: 1px solid var(--background);
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.chat-input:focus {
+  outline: none;
+  background: var(--background);
+}
+
+/* Chat Widget Responsive Design */
+@media (max-width: 480px) {
+  .chat-widget {
+    width: calc(100% - 40px);
+    bottom: 10px;
+    right: 20px;
+  }
+}
+
+/* Chat Widget Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Suggestion Chips Styles */
+.suggestion-chips {
+  padding: 10px 15px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--background);
+  background: var(--card-bg);
+}
+
+.suggestion-chips button {
+  background: var(--background);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.suggestion-chips button:hover {
+  background: var(--secondary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Update chat widget styles to accommodate suggestions */
+.chat-widget {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Responsive adjustments for suggestion chips */
+@media (max-width: 480px) {
+  .suggestion-chips {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .suggestion-chips button {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Interests Section Styles */
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.interest-item {
+  background: var(--background);
+  padding: 1.5rem;
+  border-radius: 15px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.interest-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.interest-item i {
+  font-size: 2rem;
+  color: var(--secondary);
+  margin-bottom: 1rem;
+}
+
+.interest-item h3 {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.interest-item p {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Languages Section Styles */
+.languages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.language-item {
+  background: var(--background);
+  padding: 1.5rem;
+  border-radius: 15px;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.language-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.language-item .flag {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.language-item h3 {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.language-item p {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.language-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-tag {
+  background: rgba(52, 152, 219, 0.1);
+  color: var(--secondary);
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+}
+
+.skill-tag.basic {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--accent);
+}
+
+/* Responsive adjustments for new sections */
+@media (max-width: 768px) {
+  .interests-grid,
+  .languages-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .interest-item,
+  .language-item {
+    padding: 1rem;
+  }
+  
+  .interest-item i,
+  .language-item .flag {
+    font-size: 1.5rem;
   }
 }
